@@ -13,8 +13,8 @@ static HEADER: &str = "BEGIN SLATEPACK. ";
 static FOOTER: &str = ". END SLATEPACK.";
 const WORD_LENGTH: usize = 15;
 
-// slatepack takes a slate json string and returns an encoded armored slate string
-pub fn slatepack(json_slate: &str) -> Result<String> {
+// Takes a slate json string and returns an encoded armored slate string
+pub fn armor(json_slate: &str) -> Result<String> {
     // Serialize the slate with the base58check encoding
     let encoded_slate = base58check(&json_slate)?;
     // Prettify the output for the armor payload
