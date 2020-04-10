@@ -60,4 +60,11 @@ let armored_slate = slatepack::armor(&slate).unwrap();
 println!("{:?}", armored_slate);
 ```
 
+### TODO
+- [ ] Add `deserialize_armor()` and `verify_armor()`
+- [ ] Add support for multiple slatepack messages for very big slates
+- [ ] Add slate type to framing for human convenience: INITIAL, RESPONSE, INVOICE
+- [ ] Structs
+- [ ] Lifetimes
+
 This should not be used for any real transactions. It is for educational purposes to visualize and experiment with the armored slate string format.
