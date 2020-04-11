@@ -33,20 +33,20 @@ lazy_static! {
 
 // Deprecated, use armor_string() or armor_bytes()
 pub fn armor(slate: &str) -> Result<String> {
-    Ok(armor_string(&slate)?)
+    Ok(string_to_armor(&slate)?)
 }
 
 // Takes a slate json string and returns an encoded armored slate string
-pub fn armor_string(json_slate: &str) -> Result<String> {
+pub fn string_to_armor(json_slate: &str) -> Result<String> {
     // Serialize the slate json string to bytes
     let slate_bytes = json_slate.as_bytes();
     // Armor the slate bytes
-    let armored_slate = armor_bytes(&slate_bytes)?;
+    let armored_slate = bytes_to_armor(&slate_bytes)?;
     Ok(armored_slate)
 }
 
-// Takes slate bytes (same as encoded in slate files) and returns armored string
-pub fn armor_bytes(binary_slate: &[u8]) -> Result<String> {
+// Takes slate bytes (same as encoded in slate files) and returns an encoded armored slate string
+pub fn bytes_to_armor(binary_slate: &[u8]) -> Result<String> {
     // Serialize the slate bytes with the base58check encoding
     let encoded_slate = base58check(&binary_slate)?;
     // Prettify the output for the armor payload
@@ -56,9 +56,15 @@ pub fn armor_bytes(binary_slate: &[u8]) -> Result<String> {
     Ok(armored_slate)
 }
 
-// Takes an armored slate string and returns slate bytes
+// Takes an armored slate string and returns slate json string
+pub fn armor_to_string(armor_slate: &str) -> Result<String> {
+    let bytes = armor_to_bytes(&armor_slate)?;
+    Ok(str::from_utf8(&bytes).unwrap().to_string())
+}
+
+// Takes an armored slate string and returns slate bytes (same as encoded in slate files)
 // TODO: verify and sanitize array bounds
-pub fn remove_armor(armor_slate: &str) -> Result<Vec<u8>> {
+pub fn armor_to_bytes(armor_slate: &str) -> Result<Vec<u8>> {
     // Convert the armored slate to bytes for parsing
     let raw_armor_bytes: Vec<u8> = armor_slate.as_bytes().to_vec();
     // Collect the bytes up to the first period, this is the header
