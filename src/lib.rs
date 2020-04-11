@@ -68,9 +68,9 @@ pub fn remove_armor(armor_slate: &str) -> Result<Vec<u8>> {
         .cloned()
         .collect::<Vec<u8>>();
     // Verify the header...
-    check_framing(&header_bytes)?;
+    check_header(&header_bytes)?;
     // Get the length of the header
-    let header_len = *&header_bytes.len();
+    let header_len = *&header_bytes.len() + 1;
     // Skip the length of the header to read for the payload until the next period
     let payload_bytes = &raw_armor_bytes[header_len as usize..]
         .iter()
@@ -80,13 +80,13 @@ pub fn remove_armor(armor_slate: &str) -> Result<Vec<u8>> {
     // Get length of the payload to check the footer framing
     let payload_len = *&payload_bytes.len();
     // Get footer bytes and verify them
-    let consumed_bytes = header_len + payload_len;
+    let consumed_bytes = header_len + payload_len + 1;
     let footer_bytes = &raw_armor_bytes[consumed_bytes as usize..]
         .iter()
         .take_while(|byte| **byte != b'.')
         .cloned()
         .collect::<Vec<u8>>();
-    check_framing(&footer_bytes)?;
+    check_footer(&footer_bytes)?;
     // Clean up the payload bytes to be deserialized
     let clean_payload = &payload_bytes
         .iter()
@@ -115,22 +115,34 @@ fn error_check(error_code: &Vec<u8>, slate_bytes: &Vec<u8>) -> Result<()> {
     }
 }
 
-// Checks framing bytes and returns an error if they are invalid
-// TODO: add inividual checks from header and footer
-fn check_framing(framing_bytes: &Vec<u8>) -> Result<()> {
-    let framing = str::from_utf8(&framing_bytes).unwrap();
-    if HEADER_REGEX.is_match(framing) | FOOTER_REGEX.is_match(framing) {
+// Checks header framing bytes and returns an error if they are invalid
+fn check_header(header: &Vec<u8>) -> Result<()> {
+    let framing = str::from_utf8(&header).unwrap();
+    if HEADER_REGEX.is_match(framing) {
         Ok(())
     } else {
         Err(std::io::Error::new(
             ErrorKind::InvalidData,
-            "Bad armor framing".to_string(),
+            "Bad armor header".to_string(),
+        ))
+    }
+}
+
+// Checks footer framing bytes and returns an error if they are invalid
+fn check_footer(footer: &Vec<u8>) -> Result<()> {
+    let framing = str::from_utf8(&footer).unwrap();
+    if FOOTER_REGEX.is_match(framing) {
+        Ok(())
+    } else {
+        Err(std::io::Error::new(
+            ErrorKind::InvalidData,
+            "Bad armor footer".to_string(),
         ))
     }
 }
 
 // MODIFIED Base58Check encoding for slate bytes
-pub fn base58check(slate: &[u8]) -> Result<String> {
+fn base58check(slate: &[u8]) -> Result<String> {
     // Serialize the slate json string to a vector of bytes
     let mut slate_bytes: Vec<u8> = slate.to_vec();
     // Get the four byte checksum for the slate binary
@@ -145,7 +157,7 @@ pub fn base58check(slate: &[u8]) -> Result<String> {
 }
 
 // Adds human readable formatting to the slate payload for armoring
-pub fn format_slate(slate: &str) -> Result<String> {
+fn format_slate(slate: &str) -> Result<String> {
     let formatter = slate
         .chars()
         .enumerate()
