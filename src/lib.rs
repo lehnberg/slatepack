@@ -31,44 +31,22 @@ lazy_static! {
     static ref WHITESPACE_LIST: [u8; 5] = [b'>', b'\n', b'\r', b'\t', b' '];
 }
 
-// Deprecated, use armor_string() or armor_bytes()
+// Takes a slate json string and returns an armored slate string
 pub fn armor(slate: &str) -> Result<String> {
-    Ok(string_to_armor(&slate)?)
-}
-
-// Takes a slate json string and returns an encoded armored slate string
-pub fn string_to_armor(json_slate: &str) -> Result<String> {
-    // Serialize the slate json string to bytes
-    let slate_bytes = json_slate.as_bytes();
-    // Armor the slate bytes
-    let armored_slate = bytes_to_armor(&slate_bytes)?;
-    Ok(armored_slate)
-}
-
-// Takes slate bytes (same as encoded in slate files) and returns an encoded armored slate string
-pub fn bytes_to_armor(binary_slate: &[u8]) -> Result<String> {
-    // Serialize the slate bytes with the base58check encoding
-    let encoded_slate = base58check(&binary_slate)?;
-    // Prettify the output for the armor payload
+    // Convert slate string to bytes and base58 encode with an included error check code
+    let encoded_slate = base58check(&slate.as_bytes())?;
+    // Make the armored slate more human readable
     let formatted_slate = format_slate(&encoded_slate)?;
-    // Construct the armor framing and payload
-    let armored_slate = format!("{}{}{}", HEADER, formatted_slate, FOOTER);
-    Ok(armored_slate)
+    // Combine all parts to form the final armored slate
+    Ok(format!("{}{}{}", HEADER, formatted_slate, FOOTER))
 }
 
-// Takes an armored slate string and returns slate json string
-pub fn armor_to_string(armor_slate: &str) -> Result<String> {
-    let bytes = armor_to_bytes(&armor_slate)?;
-    Ok(str::from_utf8(&bytes).unwrap().to_string())
-}
-
-// Takes an armored slate string and returns slate bytes (same as encoded in slate files)
-// TODO: verify and sanitize array bounds
-pub fn armor_to_bytes(armor_slate: &str) -> Result<Vec<u8>> {
+// Takes an armored slate string and returns a slate json string
+pub fn remove_armor(armor: &str) -> Result<String> {
     // Convert the armored slate to bytes for parsing
-    let raw_armor_bytes: Vec<u8> = armor_slate.as_bytes().to_vec();
+    let armor_bytes: Vec<u8> = armor.as_bytes().to_vec();
     // Collect the bytes up to the first period, this is the header
-    let header_bytes = &raw_armor_bytes
+    let header_bytes = &armor_bytes
         .iter()
         .take_while(|byte| **byte != b'.')
         .cloned()
@@ -78,7 +56,7 @@ pub fn armor_to_bytes(armor_slate: &str) -> Result<Vec<u8>> {
     // Get the length of the header
     let header_len = *&header_bytes.len() + 1;
     // Skip the length of the header to read for the payload until the next period
-    let payload_bytes = &raw_armor_bytes[header_len as usize..]
+    let payload_bytes = &armor_bytes[header_len as usize..]
         .iter()
         .take_while(|byte| **byte != b'.')
         .cloned()
@@ -87,7 +65,7 @@ pub fn armor_to_bytes(armor_slate: &str) -> Result<Vec<u8>> {
     let payload_len = *&payload_bytes.len();
     // Get footer bytes and verify them
     let consumed_bytes = header_len + payload_len + 1;
-    let footer_bytes = &raw_armor_bytes[consumed_bytes as usize..]
+    let footer_bytes = &armor_bytes[consumed_bytes as usize..]
         .iter()
         .take_while(|byte| **byte != b'.')
         .cloned()
@@ -105,7 +83,7 @@ pub fn armor_to_bytes(armor_slate: &str) -> Result<Vec<u8>> {
     let slate_bytes = &base_decode[4..];
     // Make sure the error check code is valid for the slate data
     error_check(&error_code.to_vec(), &slate_bytes.to_vec())?;
-    Ok(slate_bytes.to_vec())
+    Ok(str::from_utf8(&slate_bytes).unwrap().to_string())
 }
 
 // Takes an error check code and a slate binary and verifies that the code was generated from slate
