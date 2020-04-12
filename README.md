@@ -43,18 +43,19 @@ use std::io::Write;
 ...
 let armor = "BEGIN SLATEPACK...END SLATEPACK.".to_string();
 let slate = slatepack::remove_armor(&armor).unwrap();
-let slate_file = File::create("test.tx").unwrap();
+let mut slate_file = File::create("test.tx").unwrap();
 slate_file.write_all(slate.as_bytes()).unwrap();
 ```
-3. Import the transaction file into your wallet: `grin-wallet --floonet receive -i test.tx`
-4. `grin-wallet` will create a `test.tx.response` file that you need to armor to return to your counterparty
-5. Modify the above code to read and armor the response file to give you a copy pastable string
+3. Next execute `cargo run` and the transaction file will be saved as `test.tx` in `grin-armor/`.
+4. Import the transaction file into your wallet: `grin-wallet --floonet receive -i /path/to/grin-armor/test.tx`.
+5. `grin-wallet` will create a `test.tx.response` file that you need to armor to return to your counterparty.
+6. Modify the above code to read and armor the response file to give you a copy pastable string
 ```
-let response = include_str!("test.tx.response");
+let response = include_str!("../test.tx.response");
 let armor = slatepack::armor(&response).unwrap();
 println!("{}", armor);
 ```
-6. You can now copy and paste the armored slate returned in your terminal to your counterparty
+7. You can now copy and paste the armored slate returned in your terminal to your counterparty
 
 ### How slatepack armoring works when serializing with `armor()`
 1. If a json string is passed it is serialized as bytes
