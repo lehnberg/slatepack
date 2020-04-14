@@ -26,7 +26,7 @@ println!("{}", armor);
 use std::fs::File;
 use std::io::Write;
 ...
-let armor_response = "BEGIN SLATEPACK...END SLATEPACK.".to_string();
+let armor_response = "BEGINSLATEPACK...ENDSLATEPACK.".to_string();
 let response_slate = slatepack::remove_armor(armor_response).unwrap();
 let mut response_file = File::create("test.tx.response").unwrap();
 response_file.write_all(response_slate.as_bytes()).unwrap();
@@ -41,7 +41,7 @@ use slatepack;
 use std::fs::File;
 use std::io::Write;
 ...
-let armor = "BEGIN SLATEPACK...END SLATEPACK.".to_string();
+let armor = "BEGINSLATEPACK...ENDSLATEPACK.".to_string();
 let slate = slatepack::remove_armor(&armor).unwrap();
 let mut slate_file = File::create("test.tx").unwrap();
 slate_file.write_all(slate.as_bytes()).unwrap();
@@ -86,7 +86,7 @@ println!("{}", armor);
 
 #### V4 initial slate armored with slatepack:
 ```
-BEGIN SLATEPACK. 2xfX9bS82gxJ6jN D6X4X843wrT84DT FkstYawTtacDqeU HybZLwcF26YXCix bmpTcw3hii6BF4x axfussSBrZq7xMQ P1rbw3GpebXkMeY i7aSjRZgxqDJwzt MyGqBauGHxEFZNg FeEbVFsqXaKkKwK PQdxrpKutVmJV67 pbY4nbeZgPtRaZj QZL61Wj7iGqKBuu tDvEwUBsuhb9GRf 1MK3jegnbKG5JJr QVrYignWoZrpXUx PiDobVMLh7RTRrz T6GNKJftiwJ5gup f7T69mFG9H8JqCG A4i5ogfcHhfgg5b 2AzBJA49nh39Pyh zotpGBj7a7RK4Kr bWqksP7iTxvfdUB zVwinrRjLeryvF7 uroTKm514ZDDrKf ZbyncaZXcFGYHWM tWp5ccsjjtM1JqB adragavjHQyjqkU 2JH9YnoRkx2AyuU qvn7nnb4fMTAVSw sbAPwBTua7njNht nhzRqtdHTr9KM9q eXHDN9iascu. END SLATEPACK.
+BEGINSLATEPACK. 2xfX9bS82gxJ6jN D6X4X843wrT84DT FkstYawTtacDqeU HybZLwcF26YXCix bmpTcw3hii6BF4x axfussSBrZq7xMQ P1rbw3GpebXkMeY i7aSjRZgxqDJwzt MyGqBauGHxEFZNg FeEbVFsqXaKkKwK PQdxrpKutVmJV67 pbY4nbeZgPtRaZj QZL61Wj7iGqKBuu tDvEwUBsuhb9GRf 1MK3jegnbKG5JJr QVrYignWoZrpXUx PiDobVMLh7RTRrz T6GNKJftiwJ5gup f7T69mFG9H8JqCG A4i5ogfcHhfgg5b 2AzBJA49nh39Pyh zotpGBj7a7RK4Kr bWqksP7iTxvfdUB zVwinrRjLeryvF7 uroTKm514ZDDrKf ZbyncaZXcFGYHWM tWp5ccsjjtM1JqB adragavjHQyjqkU 2JH9YnoRkx2AyuU qvn7nnb4fMTAVSw sbAPwBTua7njNht nhzRqtdHTr9KM9q eXHDN9iascu. ENDSLATEPACK.
 ```
 
 ### Example use:
@@ -129,7 +129,6 @@ assert_eq!(slate, json_slate);
 
 ### TODO
 - [ ] Add support for multiple slatepack messages for very big slates
-- [ ] Add slate type to framing for human convenience: INITIAL, RESPONSE, INVOICE
 - [ ] Make more idiomatic
 
 This should not be used for any real transactions. It is for educational purposes to visualize and experiment with the armored slate string format.

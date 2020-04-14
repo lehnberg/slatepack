@@ -13,21 +13,15 @@ use std::str;
 extern crate lazy_static;
 
 // Framing and formatting for slate armor
-static HEADER: &str = "BEGIN SLATEPACK. ";
-static FOOTER: &str = ". END SLATEPACK.";
+static HEADER: &str = "BEGINSLATEPACK. ";
+static FOOTER: &str = ". ENDSLATEPACK.";
 const WORD_LENGTH: usize = 15;
 
 lazy_static! {
-    static ref HEADER_REGEX: Regex = Regex::new(concat!(
-        r"^[>\n\r\t ]*BEGIN[>\n\r\t ]+([a-zA-Z0-9]+[>\n\r\t ]+)",
-        r"?SLATEPACK[>\n\r\t ]*$"
-    ))
-    .unwrap();
-    static ref FOOTER_REGEX: Regex = Regex::new(concat!(
-        r"^[>\n\r\t ]*END[>\n\r\t ]+([a-zA-Z0-9]+[>\n\r\t ]+)",
-        r"?SLATEPACK[>\n\r\t ]*$"
-    ))
-    .unwrap();
+    static ref HEADER_REGEX: Regex =
+        Regex::new(concat!(r"^[>\n\r\t ]*BEGINSLATEPACK[>\n\r\t ]*$")).unwrap();
+    static ref FOOTER_REGEX: Regex =
+        Regex::new(concat!(r"^[>\n\r\t ]*ENDSLATEPACK[>\n\r\t ]*$")).unwrap();
     static ref WHITESPACE_LIST: [u8; 5] = [b'>', b'\n', b'\r', b'\t', b' '];
 }
 
