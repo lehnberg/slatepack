@@ -13,6 +13,7 @@ extern crate minify;
 use minify::json::minify;
 #[macro_use]
 extern crate lazy_static;
+extern crate serde_json;
 
 
 // Framing and formatting for slate armor
@@ -82,7 +83,9 @@ pub fn remove_armor(armor: &str) -> Result<String> {
     let slate_bytes = &base_decode[4..];
     // Make sure the error check code is valid for the slate data
     error_check(&error_code.to_vec(), &slate_bytes.to_vec())?;
-    Ok(str::from_utf8(&slate_bytes).unwrap().to_string())
+    // Pretty-print minified JSON
+    let pretty_slate = serde_json::to_string_pretty(&slate_bytes).unwrap();
+    Ok(str::from_utf8(&pretty_slate).unwrap().to_string())
 }
 
 // Takes an error check code and a slate binary and verifies that the code was generated from slate
