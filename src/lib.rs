@@ -13,6 +13,7 @@ extern crate minify;
 use minify::json::minify;
 #[macro_use]
 extern crate lazy_static;
+extern crate jsonxf;
 
 
 // Framing and formatting for slate armor
@@ -82,7 +83,10 @@ pub fn remove_armor(armor: &str) -> Result<String> {
     let slate_bytes = &base_decode[4..];
     // Make sure the error check code is valid for the slate data
     error_check(&error_code.to_vec(), &slate_bytes.to_vec())?;
-    Ok(str::from_utf8(&slate_bytes).unwrap().to_string())
+    // Get minified slate, return pretty printed version 
+    let minified_slate = str::from_utf8(&slate_bytes).unwrap().to_string();
+    Ok(jsonxf::pretty_print(&minified_slate).unwrap())
+
 }
 
 // Takes an error check code and a slate binary and verifies that the code was generated from slate
