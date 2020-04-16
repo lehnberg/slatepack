@@ -12,7 +12,7 @@ It should be able to:
 2. In `Cargo.toml` under `[Dependencies]` add `slatepack = { git = "https://github.com/j01tz/slatepack" }`
 3. In `/src/main.rs` add the following lines:
 ```
-use slateplack;
+use slatepack;
 ...
 let slate = include_str!("test.tx");
 let armor = slatepack::armor(&slate).unwrap();
