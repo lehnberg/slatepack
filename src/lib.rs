@@ -9,8 +9,11 @@ use regex::Regex;
 use sha2::{Digest, Sha256};
 use std::io::{ErrorKind, Result};
 use std::str;
+extern crate minify;
+use minify::json::minify;
 #[macro_use]
 extern crate lazy_static;
+
 
 // Framing and formatting for slate armor
 static HEADER: &str = "BEGINSLATEPACK. ";
@@ -27,8 +30,10 @@ lazy_static! {
 
 // Takes a slate json string and returns an armored slate string
 pub fn armor(slate: &str) -> Result<String> {
+    // Minify JSON
+    let minified_slate = minify(&slate);
     // Convert slate string to bytes and base58 encode with an included error check code
-    let encoded_slate = base58check(&slate.as_bytes())?;
+    let encoded_slate = base58check(&minified_slate.as_bytes())?;
     // Make the armored slate more human readable
     let formatted_slate = format_slate(&encoded_slate)?;
     // Combine all parts to form the final armored slate
